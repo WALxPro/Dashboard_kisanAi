@@ -13,15 +13,16 @@ const InputField = ({
   fsd = false,
   register,
   error,
+  labelClass,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const inputType = psd ? (showPassword ? "text" : "password") : type;
-  
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         {label && (
-          <label className="block text-sm text-input/80">
+          <label className={`block text-sm text-input/80 ${labelClass}`}>
             {label}
           </label>
         )}
@@ -44,13 +45,13 @@ const InputField = ({
           {...register}
           className={`h-12 border-input/20  text-input  bg-input/10 ${
             Icon ? "pl-12" : "pl-4"
-          } pr-12 text-text-input ${className}`}
+          } pr-12 text-input ${className}`}
         />
 
         {psd && (
           <button
             type="button"
-            onClick={()=>setShowPassword(!showPassword)}
+            onClick={() => setShowPassword(!showPassword)}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-input/50 cursor-pointer"
           >
             {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}

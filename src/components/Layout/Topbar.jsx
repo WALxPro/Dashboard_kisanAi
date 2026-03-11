@@ -1,6 +1,10 @@
 import { Bell, ChevronDown, LogOut, User, Menu, Search } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const Topbar = ({ setMobileOpen, profileOpen, setProfileOpen, handleNav }) => {
+  const user = useSelector((state) => state.auth.user);
+  console.log(user);
+
   return (
     <header className="flex h-[72px] items-center justify-between border-b border-border bg-card/80 backdrop-blur-xl px-4 lg:px-6">
       <div className="flex items-center gap-4">
@@ -27,13 +31,21 @@ const Topbar = ({ setMobileOpen, profileOpen, setProfileOpen, handleNav }) => {
             onClick={() => setProfileOpen(!profileOpen)}
             className="flex items-center gap-3 rounded-xl p-1.5 hover:bg-secondary transition-all cursor-pointer"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-primary shadow-sm">
-              <User className="h-4 w-4 text-primary-foreground" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-primary shadow-sm overflow-hidden">
+              {user.profile_picture ? (
+                <img
+                  src={user.profile_picture}
+                  alt="Profile"
+                  className="h-full w-full object-cover rounded-xl"
+                />
+              ) : (
+                <User className="h-4 w-4 text-primary-foreground" />
+              )}
             </div>
 
             <div className="hidden text-left md:block">
               <p className="text-sm font-semibold text-foreground leading-tight">
-                Admin
+                {user.name}
               </p>
               <p className="text-xs text-muted-foreground">Administrator</p>
             </div>
@@ -54,11 +66,9 @@ const Topbar = ({ setMobileOpen, profileOpen, setProfileOpen, handleNav }) => {
               <div className="absolute right-0 top-14 z-50 w-56 animate-fade-in rounded-xl border border-border bg-card p-2 shadow-xl">
                 <div className="mb-2 rounded-lg bg-secondary/50 p-3">
                   <p className="text-sm font-semibold text-foreground">
-                    Admin User
+                    {user.name}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    admin@agrigrow.com
-                  </p>
+                  <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
 
                 <button

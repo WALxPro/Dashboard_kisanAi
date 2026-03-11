@@ -1,103 +1,290 @@
-import React, { useState } from 'react'
-import { AddBtn, DashboardText, Searchbar } from '../../components'
-import { Pencil, Trash2 } from 'lucide-react';
+import { useEffect, useState } from "react";
 
-const adsData= [
-  { id: 1, title: "Premium Fertilizer Sale", description: "Get 30% off on all organic fertilizers this season", image: "", targetUrl: "", status: "Active", clicks: 1240, impressions: 8500, createdAt: "Jan 10, 2024" },
-  { id: 2, title: "New Tractor Models", description: "Explore latest tractor models with easy EMI options", image: "", targetUrl: "", status: "Active", clicks: 890, impressions: 6200, createdAt: "Feb 15, 2024" },
-  { id: 3, title: "Seed Discount Week", description: "Buy 2 get 1 free on all hybrid seeds", image: "", targetUrl: "", status: "Inactive", clicks: 560, impressions: 3400, createdAt: "Mar 5, 2024" },
-  { id: 4, title: "Irrigation Equipment", description: "Modern drip irrigation systems at wholesale prices", image: "", targetUrl: "", status: "Active", clicks: 2100, impressions: 12000, createdAt: "Apr 20, 2024" },
-];
-const ADSManagement = () => {
-    const [search, setSearch] = useState("");
-  const [ads, setAds] = useState(adsData);
+// import ConfirmModal from "../../components/UI/ConfirmModal";
+// import Input from "../../components/UI/Input";
+// import Button from "../../components/UI/Button";
+// import AdsModal from "../../components/UI/AdsModal";
+import {
+  Image,
+  LayoutGrid,
+  List,
+  Pencil,
+  Plus,
+  Search,
+  ToggleLeft,
+  ToggleRight,
+  Trash2,
+} from "lucide-react";
+import { adSchema } from "../../services/validation/adSchema";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import useAds from "../../hooks/useAds";
+import { uploadToCloudinary } from "../../services/Cloudnairy/uploadImage";
+import {  AdCard, AdsModal, Button, ContentLoader, EmptyState } from "../../components";
+import Input from "../../components/UI/Input";
+// import ContentLoader from "../../components/UI/Contentloader";
+// import EmptyState from "../../components/UI/EmptyState";
+
+
+const AdsManagement = () => {
+  const [search, setSearch] = useState("");
+  const [ads, setAds] = useState([]);
   const [formOpen, setFormOpen] = useState(false);
   const [editingAd, setEditingAd] = useState(null);
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    targetUrl: "",
-    status: "Active", // Active or Inactive
-  });
   const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null });
+  const [activeTab, setActiveTab] = useState("cards");
 
-  // Filter ads based on search
+  const { loading, error, CreateAds, getAds } = useAds();
+
   const filtered = ads.filter((a) =>
-    a.title.toLowerCase().includes(search.toLowerCase())
+    a.title.toLowerCase().includes(search.toLowerCase()),
   );
 
-  // Open Add form
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(adSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      image: null,
+      status: "Active",
+    },
+  });
+
   const openAdd = () => {
     setEditingAd(null);
-    setForm({ title: "", description: "", targetUrl: "", status: "Active" });
-    setFormOpen(true);
-  };
-
-  // Open Edit form
-  const openEdit = (ad) => {
-    setEditingAd(ad);
-    setForm({
-      title: ad.title,
-      description: ad.description,
-      targetUrl: ad.targetUrl,
-      status: ad.status,
+    reset({
+      title: "",
+      description: "",
+      image: null,
+      status: "Active",
     });
     setFormOpen(true);
   };
+  const openEdit = (ad) => {
+    setEditingAd(ad);
 
-  // Save new or edited ad
-  const handleSave = () => {
-    if (!form.title.trim()) return;
+    reset({
+      title: ad.title,
+      description: ad.description,
+      image: ad.image,
+      status: ad.status,
+    });
 
-    if (editingAd) {
-      setAds((prev) =>
-        prev.map((a) => (a.id === editingAd.id ? { ...a, ...form } : a))
-      );
-    } else {
-      setAds((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          title: form.title,
-          description: form.description,
-          image: "",
-          targetUrl: form.targetUrl,
-          status: form.status,
-          clicks: 0,
-          impressions: 0,
-          createdAt: new Date().toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          }),
-        },
-      ]);
-    }
-
-    setFormOpen(false);
+    setFormOpen(true);
+  };
+  const handleSave = async (data) => {
+    console.log(data);
+    const imageUrl = await uploadToCloudinary(data.image);
+    await CreateAds({
+      ...data,
+      image: imageUrl,
+    });
+  };
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
   };
 
-  // Delete ad
-  const handleDelete = (id) => {
-    setAds((prev) => prev.filter((a) => a.id !== id));
-  };
+  useEffect(() => {
+    const fetchAds = async () => {
+      try {
+        const data = await getAds();
+        setAds(data);
+      } catch (error) {
+        console.error("Failed to fetch ads:", error);
+      }
+    };
+
+    fetchAds();
+  }, []);
+  console.log(ads);
   return (
-        <div className="space-y-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <DashboardText text="ADS Management" para="Create and manage advertisements"/>
-          <AddBtn/>
-      </div>
-      <Searchbar/>
-
-       <div className="overflow-hidden rounded-2xl border border-border bg-card">
-        <div className="border-b border-border p-5">
-          <h2 className="text-lg font-bold text-foreground">All Ads Overview</h2>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">ADS Management</h1>
+          <p className="text-muted-foreground">
+            Create and manage advertisements.
+          </p>
         </div>
-      
+        <Button
+          onClick={openAdd}
+          className="flex items-center gap-2 px-5 py-2.5"
+        >
+          <Plus className="h-4 w-4" /> Add New Ad
+        </Button>
       </div>
-          </div>
 
-  )
-}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search ads..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+            className="pl-10"
+          />
+        </div>
+        <span className="flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success">
+          {ads.filter((a) => a.status === "Active").length} Active
+        </span>
+        <span className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
+          {ads.filter((a) => a.status === "Inactive").length} Inactive
+        </span>
+        <div className="ml-auto flex items-center rounded-lg border border-border bg-secondary/30 p-1">
+          <button
+            onClick={() => handleTabChange("cards")}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${activeTab === "cards" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <LayoutGrid className="h-4 w-4" /> Cards
+          </button>
+          <button
+            onClick={() => handleTabChange("table")}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${activeTab === "table" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <List className="h-4 w-4" /> Table
+          </button>
+        </div>
+      </div>
 
-export default ADSManagement
+      {activeTab === "cards" ? (
+        loading ? (
+          <ContentLoader variant="cards" count={6} />
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            title="No Ads Found"
+            description="Create your first advertisement to get started."
+          />
+        ) : (
+          <AdCard
+            openEdit={openEdit}
+            setDeleteConfirm={setDeleteConfirm}
+            ads={filtered}
+          />
+        )
+      ) : loading ? (
+        <ContentLoader variant="table" count={6} columns={4} />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          title="No Ads Found"
+          description="Create your first advertisement to get started."
+        />
+      ) : (
+        <AdTable
+          openEdit={openEdit}
+          setDeleteConfirm={setDeleteConfirm}
+          ads={filtered}
+        />
+      )}
+
+      {formOpen && (
+        <AdsModal
+          setFormOpen={setFormOpen}
+          register={register}
+          errors={errors}
+          handleSubmit={handleSubmit}
+          handleSave={handleSave}
+          editingAd={editingAd}
+          setValue={setValue}
+          watch={watch}
+        />
+      )}
+      {/* <ConfirmModal
+        open={deleteConfirm.open}
+        onClose={() => setDeleteConfirm({ open: false, id: null })}
+        // onConfirm={() => {
+        //   if (deleteConfirm.id) handleDelete(deleteConfirm.id);
+        // }}
+        title="Delete Ad?"
+        message="Are you sure you want to delete this advertisement? This action cannot be undone."
+        confirmText="Yes, Delete"
+        variant="danger"
+      /> */}
+    </div>
+  );
+};
+
+export default AdsManagement;
+
+
+
+const AdTable = ({ ads, openEdit, setDeleteConfirm }) => {
+  return (
+    <>
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border bg-secondary/30">
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Title
+                </th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Status
+                </th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Created
+                </th>
+                <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {ads.map((ad) => (
+                <tr
+                  key={ad.id}
+                  className="border-b border-border/50 last:border-0 hover:bg-secondary/30 transition-colors"
+                >
+                  <td className="px-5 py-3.5 text-sm font-semibold text-foreground">
+                    {ad.title}
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${ad.status === "Active" ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${ad.status === "Active" ? "bg-success" : "bg-muted-foreground"}`}
+                      />
+                      {ad.status}
+                    </span>
+                  </td>
+
+                  <td className="px-5 py-3.5 text-sm text-muted-foreground">
+                    {ad.createdAt}
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => openEdit(ad)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-info/10 hover:text-info transition-colors"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() =>
+                          setDeleteConfirm({ open: true, id: ad.id })
+                        }
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+};

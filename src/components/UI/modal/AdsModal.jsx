@@ -1,0 +1,153 @@
+import { Upload } from "lucide-react";
+import InputField from "../InputFeild";
+
+const AdsModal = ({
+  errors,
+  setFormOpen,
+  handleSave,
+  editingAd,
+  handleSubmit,
+  setValue,
+  register,
+  watch,
+}) => {
+  const status = watch("status");
+  const image = watch("image");
+  const toggleStatus = () => {
+    const newStatus = status === "Active" ? "Inactive" : "Active";
+    setValue("status", newStatus);
+  };
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+        onClick={() => setFormOpen(false)}
+      />
+
+      <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 animate-scale-in rounded-2xl bg-sidebar border border-white/10 p-6 shadow-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <InputField
+              label="Title"
+              type="text"
+              placeholder="Title..."
+              register={register("title")}
+              error={errors.title?.message}
+            />
+            <div>
+              <label className="block text-sm text-input/80 pb-2">
+                Description
+              </label>
+              <textarea
+                {...register("description")}
+                placeholder="Ad description..."
+                rows={3}
+                className="border-input/20  text-input  bg-input/10 
+            text-input w-full rounded-lg border px-4 py-3 text-base transition-colors
+                  focus:outline-none focus:ring-2 focus:ring-accent/50
+                  disabled:opacity-50 disabled:cursor-not-allowed "
+              />
+              {errors.description && (
+                <p className="text-xs text-red-400 mt-1">
+                  {errors.description.message}
+                </p>
+              )}
+            </div>
+
+            <input type="hidden" {...register("status")} />
+
+            <div
+              className="flex items-center justify-between rounded-lg border border-input/20 focus:outline-none focus:ring-2 focus:ring-accent/50
+                  disabled:opacity-50 cursor-pointer bg-input/10 px-4 py-3"
+            >
+              <div>
+                <p className="text-sm font-medium text-input">Active Status</p>
+                <p className="text-xs text-input/40">Make this ad live</p>
+              </div>
+              <button
+                type="button"
+                onClick={toggleStatus}
+                className={`relative h-6 w-11 rounded-full transition-colors ${
+                  status === "Active" ? "bg-accent" : "bg-white/20"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                    status === "Active" ? "translate-x-5" : ""
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm text-input/80 pb-2">
+              Ad Banner Image
+            </label>
+            <div
+              className="border-input/20  text-input  bg-input/10 
+             w-full rounded-lg border px-4 py-3 text-base
+                  focus:outline-none focus:ring-2 focus:ring-accent/50
+                  disabled:opacity-50 disabled:cursor-not-allowed h-[calc(100%-28px)] "
+            >
+              <input
+                type="file"
+                onChange={(e) => setValue("image", e.target.files[0])}
+                className="hidden"
+                id="bannerUpload"
+              />
+
+              <label
+                htmlFor="bannerUpload"
+                className=" cursor-pointer h-full flex flex-col items-center justify-center overflow-hidden rounded-lg"
+              >
+                
+                {image ? (
+                  <img
+                    src={URL.createObjectURL(image)}
+                    alt="Preview"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 mb-2 text-white/30" />
+                    <p className="text-sm text-white/50 font-medium">
+                      Drag & Drop or Click to Upload
+                    </p>
+                    <p className="text-xs text-white/30 mt-1">
+                      16:9 ratio recommended
+                    </p>
+                  </>
+                )}
+              </label>
+
+              {errors.image && (
+                <p className="text-xs text-red-400 mt-2">
+                  {errors.image.message}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5">
+          <button
+            onClick={() => setFormOpen(false)}
+            className="cursor-pointer rounded-lg border border-white/15 bg-transparent px-5 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit(handleSave)}
+            className="cursor-pointer rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/25 transition-all"
+          >
+            {editingAd ? "Update" : "Create"} Ad
+          </button>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default AdsModal;

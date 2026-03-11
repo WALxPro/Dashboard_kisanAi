@@ -12,9 +12,12 @@ import CityChart from "./UI/CityChart";
 import CropDistributionChart from "./UI/CropDistributionChart";
 import ActivityFeed from "./UI/ActivityFeed";
 import RecentFarmersTable from "./UI/RecentFarmersTable ";
-import AddBtn from "./UI/AddBtn";
 import Searchbar from "./UI/Searchbar";
 import OTPModal from "./UI/OtpModal";
+import ContentLoader from "./UI/Contentloader";
+import EmptyState from "./UI/EmptyState";
+import AdsModal from "./UI/modal/AdsModal";
+import  AdCard  from "./UI/cards/AdCard"
 export {
   DashboardLayout,
   InputField,
@@ -30,8 +33,10 @@ export {
   CropDistributionChart,
   ActivityFeed,
   RecentFarmersTable,
-  AddBtn,
   Searchbar,
-  OTPModal
-  
+  OTPModal,
+  ContentLoader,
+  EmptyState,
+  AdsModal,
+  AdCard
 };
