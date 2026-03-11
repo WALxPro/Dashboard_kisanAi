@@ -15,7 +15,7 @@ const Button = forwardRef(
       <button
         ref={ref}
         type={type}
-        className={`${baseStyles} ${variants[variant] || variants.default} ${className}`}
+        className={`${baseStyles} ${variants[variant] || variants.default} ${className} cursor-pointer`}
         {...props}
       >
         {children}

@@ -18,6 +18,7 @@ import ContentLoader from "./UI/Contentloader";
 import EmptyState from "./UI/EmptyState";
 import AdsModal from "./UI/modal/AdsModal";
 import  AdCard  from "./UI/cards/AdCard"
+import AdTable from "./UI/table/Adtable";
 export {
   DashboardLayout,
   InputField,
@@ -38,5 +39,6 @@ export {
   ContentLoader,
   EmptyState,
   AdsModal,
-  AdCard
+  AdCard,
+  AdTable
 };

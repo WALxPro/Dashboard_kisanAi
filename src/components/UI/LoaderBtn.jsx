@@ -1,12 +1,12 @@
 import React from 'react'
 
-const LoaderBtn = ({loading,text,loaderText}) => {
+const LoaderBtn = ({loading,text,loaderText,className}) => {
   return (
     <button
               type="submit"
               disabled={loading}
               className={`w-full h-12 text-accent-foreground font-semibold rounded-lg transition-all duration-300 
-    ${loading ? "bg-accent/50 cursor-not-allowed" : "bg-accent hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/25 active:scale-[0.98]"}`}
+            ${loading ? "bg-accent/50 cursor-not-allowed" : "bg-accent hover:bg-accent/90 hover:shadow-lg hover:shadow-accent/25 active:scale-[0.98]"} ${className}`}
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">

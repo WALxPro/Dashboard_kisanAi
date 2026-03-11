@@ -10,9 +10,17 @@ const AdsModal = ({
   setValue,
   register,
   watch,
+  loading,
+  backendError,
 }) => {
   const status = watch("status");
   const image = watch("image");
+  const preview =
+    image instanceof File
+      ? URL.createObjectURL(image) // local file upload
+      : typeof image === "string"
+        ? image // backend URL
+        : null; // nothing yet
   const toggleStatus = () => {
     const newStatus = status === "Active" ? "Inactive" : "Active";
     setValue("status", newStatus);
@@ -80,7 +88,7 @@ const AdsModal = ({
               </button>
             </div>
           </div>
-          
+
           <div>
             <label className="block text-sm text-input/80 pb-2">
               Ad Banner Image
@@ -102,10 +110,9 @@ const AdsModal = ({
                 htmlFor="bannerUpload"
                 className=" cursor-pointer h-full flex flex-col items-center justify-center overflow-hidden rounded-lg"
               >
-                
-                {image ? (
+                {preview ? (
                   <img
-                    src={URL.createObjectURL(image)}
+                    src={preview}
                     alt="Preview"
                     className="h-full w-full object-cover"
                   />
@@ -130,7 +137,9 @@ const AdsModal = ({
             </div>
           </div>
         </div>
-
+        {errors.image && (
+          <p className="text-xs text-red-400 mt-2">{backendError}</p>
+        )}
         <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5">
           <button
             onClick={() => setFormOpen(false)}
@@ -140,9 +149,16 @@ const AdsModal = ({
           </button>
           <button
             onClick={handleSubmit(handleSave)}
-            className="cursor-pointer rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/25 transition-all"
+            disabled={loading}
+            className="cursor-pointer rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/25 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {editingAd ? "Update" : "Create"} Ad
+            {loading
+              ? editingAd
+                ? "Updating..."
+                : "Creating..."
+              : editingAd
+                ? "Update Ad"
+                : "Create Ad"}
           </button>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { Pencil, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
 
- const AdCard = ({ ads, openEdit, setDeleteConfirm }) => {
+const AdCard = ({ ads, openEdit, setDeleteConfirm }) => {
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
       {ads.map((ad) => (
@@ -10,8 +10,8 @@ import { Pencil, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
         >
           <div className="relative flex h-44 items-center justify-center bg-gradient-to-br from-secondary to-muted">
             <img
-              src={ad.image}
-              alt="Preview"
+              src={ad.image} // direct string
+              alt={ad.title || "Ad Preview"}
               className="h-full w-full bg-center bg-cover "
             />
 
@@ -38,18 +38,20 @@ import { Pencil, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
             </p>
             <div className="flex items-center justify-between border-t border-border pt-3">
               <span className="text-xs text-muted-foreground">
-                {ad.created_at}
+                {new Date(ad.created_at).toLocaleDateString()}
               </span>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={() => openEdit(ad)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-info/10 hover:text-info  cursor-pointer"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-info/10 hover:text-info cursor-pointer"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={() => setDeleteConfirm({ open: true, id: ad.id })}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive  cursor-pointer"
+                  onClick={() =>
+                    setDeleteConfirm({ open: true, id: ad._id })
+                  }
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -62,4 +64,4 @@ import { Pencil, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
   );
 };
 
-export default AdCard
+export default AdCard;

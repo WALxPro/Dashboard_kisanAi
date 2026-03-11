@@ -43,12 +43,10 @@ const AdTable = ({ ads, openEdit, setDeleteConfirm }) => {
                       {ad.status}
                     </span>
                   </td>
-                  {/* <td className="px-5 py-3.5 text-sm text-muted-foreground">
+                  <td className="px-5 py-3.5 text-sm text-muted-foreground">
                     {ad.created_at}
-                  </td> */}
-                  <td className="px-5 py-3.5 text-sm font-semibold text-foreground">
-                    {ad.title}
                   </td>
+                  
 
                   <td className="px-5 py-3.5">
                     <div className="flex gap-1">
